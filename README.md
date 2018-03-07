@@ -74,7 +74,7 @@ C++ lets you use the C functions described previously.  In addition to those fun
 ### R functions for seeking
 Whenever possible, I write my C/C++ programs so that the output can be read into R.  R has the ability to seek to positions in files:
 
-```
+```R
 #open for reading
 f = file("infile.txt","r")
 ```
@@ -83,7 +83,7 @@ In the above block, file is a function returning what R calls a "connection".  S
 
 Once open, you may seek within most types of connections:
 
-```
+```R
 seek( connection, offset)
 ```
 
@@ -96,7 +96,7 @@ In my experience, seeking in R works fine with the following types of connection
 
 For example, let's say you have lots of data frames in a plain-text file.  Prior to each data frame, there is an integer saying how many rows are in the following table.  The offsets from your index file refer to where this integer starts.  To read the i-th table:
 
-```
+```R
 f=file("file.txt","r")
 seek(f, offset_to_ith_record)
 nr=scan(f,nmax=1)
@@ -123,7 +123,7 @@ The most obvious application for a first-time zlib user will be to write your pl
 
 This section concerns plain-text data being written to a compressed outputs stream using zlib.
 
-```{c}
+```c
 #include <zlib.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -165,7 +165,7 @@ As you can see, the absence of a _gzscanf_ function makes reading the data tires
 
 Of course, the basic use of zlib is identical in C++.  However, C++ make is very easy for us to buffer output from various sources.  The _std::ostringstream_ is more convenient than the C-language equavalent:
 
-```{c++}
+```C++
 #include <zlib.h>
 
 #include <sstream>
@@ -316,7 +316,7 @@ Binary files are essentially a vomit of raw data to a file.  No white space, new
 
 A big plus of binary data is that you can read directly into vectors.  For example, this "just works":
 
-```c++
+```C++
 vector<double> x(NUMRECORDS); //assume NUMRECORDS is set, and is correct!
 in.read( reinterpret_cast< char * >(&x[0]), NUMRECORDS * sizeof(double) );
 ```
@@ -344,7 +344,7 @@ How does one write out all those names?  With no whitespace separator, you need 
 
 I always take the second option (although I should switch to the third...):
 
-```c++
+```C++
 string x("I am a string!");
 unsigned xlen = x.size();
 out.write( reinterpret_cast<char *>(&xlen), sizeof(unsigned) );
@@ -353,7 +353,7 @@ out.write( x.c_str(), x.size() ); //no nead to multiply by sizeof(char) here...
 
 That does make strings trickier to read back in:
 
-```c++
+```C++
 vector<string> names(NROWS);
 unsigned stringlen;
 vector<char> temp;
@@ -389,7 +389,7 @@ Here are some examples from my own work.  Both of these use an approach similar 
 
 For anything other than character data, use readBin:
 
-```
+```R
 #open for reading in binary mode
 f = file("file.bin","rb")
 #read in number of records
@@ -400,7 +400,7 @@ x=readBin(f, "numeric", nrecs)
 
 You can even read in a matrix:
 
-```
+```R
 f = file("file.bin","rb"); #open for reading in binary mode
 ncol = readBin(f,"integer",1)
 nrow = readBin(f,"integer",1)
@@ -411,7 +411,7 @@ And yes, it is very fast.
 
 To read in character data, use readChar (presumably after reading in the length of the string using readBin!):
 
-```
+```R
 name = readChar( f, 10 ) #reads in 10 characters
 ```
 
@@ -424,7 +424,7 @@ The previous two sections covered zlib (in its most basic form) and introduced b
 
 Here is an example in C (the source is [here](examples/zlib/gzwrite.c)):
 
-```{c}
+```C
 /*
   Example of gzwrite using binary data
 
@@ -469,7 +469,7 @@ int main( int argc, char ** argv )
 
 Executing the above program (compile it in the examples/zlib directory using "make", then run it) and then giving the following command:
 
-```{sh}
+```Shell
 zless out.gz
 ```
 
@@ -479,14 +479,14 @@ The extension to C++ should be obvious, as you just write your buffers using gzw
 
 First:
 
-```{c++}
+```C++
 vector< int > x;
 //fill x somehow
 gzwrite( gzstream, x.data(), x.size()*sizeof(int) );
 ```
 
 Second:
-```{c++}
+```C++
 ostringstream buffer;
 //fill buffer by conversion to binary via reinterpret_cast
 gzwrite( gzstream, buffer.str().c_str(), buffer.str().size() );
@@ -519,7 +519,7 @@ Large clusters often have some sort of network-mounted storage in the form of a 
  
 Here is an example of how to use a cluster to create gazillions of tiny files.  This is a hypothetical Grid Engine script that will run 100,000 replicates of a simulation.  Each replicate will be _written to a separate file_.  If this job gets access to hundreds of nodes, the file system may start to freak out and bad things may happen: 
  
- ```{sh} 
+ ```Shell
  #!/bin/bash 
  
  #$ -t 1-100000 
@@ -572,7 +572,7 @@ If a program prints to screen, and you cannot modify the code, try [atomic_locke
 
 If a program writes to an output file and does not use file locking, you may use named pipes and one of the above solutions:
 
-```{sh}
+```Shell
 mkfifo temp
 program -o temp &
 cat temp | atomic_locker id_number indexfilename outfilename
@@ -583,7 +583,7 @@ The above command will buffer the output from "program" into a memory buffer cal
 
 In the context of an array job, each named pipe needs to be unique:
 
-```{sh}
+```Shell
 #!/bin/sh
 
 #$ -q queuename
