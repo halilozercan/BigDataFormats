@@ -226,7 +226,7 @@ For example:
 cc -o gzexample gzexample.cc -O2 -Wall -W -lz
 ```
 
-##Disclaimer/full disclosure
+## Disclaimer/full disclosure
 
 Technically, zlib supports _two_ types of data compression.  The first is the gzip format, which is accessed using zlib's functions with "gz" in the name.  This part of zlib provided the functions with analagous functionality to C's \<stdio.h\> header.  The second format supported by zlib is the zlib format.  The rest of the zlib library is devoted to that format.
 
@@ -301,7 +301,7 @@ This "full C++" example is easy to code, but which of the above is the fastest? 
 
 Why is the "full C++" the slowest?  A lot of it is due to the buffering using ostringstream.
 
-##How you buffer matters!
+## How you buffer matters!
 We can get most of the speed back by buffering into a vector<double> rather than an ostringstream, which is shown in the following example.  (We get even more speed back by replacing C++ fstreams with C data types.)
 
 This example takes 0.086 seconds on my machine, in between the fastest and slowest examples above:
